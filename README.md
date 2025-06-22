@@ -334,10 +334,6 @@ The API uses custom HTTP exceptions (`NotFoundException`, `BadRequestException`,
 - The codebase is modular, with separate concerns for controllers, services, and schemas.
 - The live deployment on Vercel ensures accessibility for testing.
 
-## 📬 Contact
-
-For questions or feedback, contact [Ayesha Sareen] via [email@example.com] or open an issue on the GitHub repository.
-
 ## 📜 License
 
 This project is licensed under the ISC License.
