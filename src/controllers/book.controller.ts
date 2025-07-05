@@ -46,7 +46,10 @@ export class BookController {
       console.log("Request Body", req.body);
       const bookInput = BookValidator.parse(req.body);
 
-      const book = await this.bookService.createBook(bookInput);
+      const book = await this.bookService.createBook({
+        ...bookInput,
+        available: bookInput.copies > 0,
+      });
       res.status(book.statusCode).json(ResponseBuilder.format(book));
     } catch (err) {
       console.error("[BookController] Failed to create a book", err);
@@ -66,7 +69,10 @@ export class BookController {
 
       const data = UpdateBookValidator.parse(req.body);
 
-      const book = await this.bookService.updateBook(id, data);
+      const book = await this.bookService.updateBook(id, {
+        ...data,
+        available: data.copies ? data.copies > 0 : data.available,
+      });
       res.status(book.statusCode).json(ResponseBuilder.format(book));
     } catch (err) {
       console.error("[BookController] Failed to update a book", err);
