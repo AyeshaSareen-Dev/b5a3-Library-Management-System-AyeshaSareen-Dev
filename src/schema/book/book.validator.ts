@@ -18,3 +18,5 @@ export const BookValidator = z.object({
     .nonnegative("Number of copies must be a non-negative integer."),
   available: z.boolean().optional().default(true),
 });
+
+export const UpdateBookValidator = BookValidator.partial();

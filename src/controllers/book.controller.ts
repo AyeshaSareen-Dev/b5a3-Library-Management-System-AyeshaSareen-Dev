@@ -4,6 +4,7 @@ import { BookService } from "../services";
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 import { ResponseBuilder } from "../utils/ResponseBuilder";
+import { UpdateBookValidator } from "../schema/book/book.validator";
 
 export class BookController {
   private bookService: BookService;
@@ -63,15 +64,9 @@ export class BookController {
         })
         .parse(req.params);
 
-      const { copies } = z
-        .object({
-          copies: z
-            .number()
-            .positive("Number of copies must be a positive integer."),
-        })
-        .parse(req.body);
+      const data = UpdateBookValidator.parse(req.body);
 
-      const book = await this.bookService.updateBook(id, copies);
+      const book = await this.bookService.updateBook(id, data);
       res.status(book.statusCode).json(ResponseBuilder.format(book));
     } catch (err) {
       console.error("[BookController] Failed to update a book", err);

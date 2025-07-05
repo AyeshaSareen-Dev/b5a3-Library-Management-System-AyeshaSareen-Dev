@@ -1,4 +1,6 @@
+import { z } from "zod";
 import { BookFilterShape, BookModel, BookShape } from "../schema/book";
+import { UpdateBookValidator } from "../schema/book/book.validator";
 import {
   InternalServerException,
   NotFoundException,
@@ -26,17 +28,24 @@ export class BookService {
   async getBooks(filters: BookFilterShape) {
     try {
       var query = BookModel.find();
+      var countQuery = BookModel.countDocuments();
       if (filters.filter) {
         query = query.where("genre").equals(filters.filter);
+        countQuery = countQuery.where("genre").equals(filters.filter);
       }
       query = query
         .limit(filters.limit)
+        .skip((filters.page - 1) * filters.limit)
         .sort({ [filters.sortBy]: filters.sort === "desc" ? -1 : 1 });
 
-      const data = await query.exec();
+      const [data, total] = await Promise.all([query.exec(), countQuery.exec()]);
 
       return ResponseBuilder.success()
         .withData(data)
+        .withMetadata({
+          total,
+          pageCount: Math.ceil(total / filters.limit),
+        })
         .withMessage("Books retrieved successfully")
         .build();
     } catch (err) {
@@ -63,12 +72,9 @@ export class BookService {
     }
   }
 
-  async updateBook(id: string, copies: number) {
+  async updateBook(id: string, data: z.infer<typeof UpdateBookValidator>) {
     try {
-      const book = await BookModel.updateCopies({
-        id,
-        copies,
-      });
+      const book = await BookModel.updateOne({ _id: id }, { $set: data });
 
       if (!book) throw new NotFoundException("Book not found!");
 

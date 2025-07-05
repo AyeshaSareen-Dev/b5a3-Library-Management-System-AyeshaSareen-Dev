@@ -7,6 +7,7 @@ export const BookFilterValidator = z.object({
     .optional()
     .default("createdAt"),
   limit: z.coerce.number().min(1).max(100).optional().default(10),
+  page: z.coerce.number().min(1).optional().default(1),
   filter: z
     .enum([
       "FICTION",

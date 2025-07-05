@@ -1,11 +1,17 @@
 import { ZodError } from "zod";
 import { HttpException, InternalServerException } from "./HttpException";
 
+interface IMetadata {
+  total: number;
+  pageCount: number;
+}
+
 export class ResponseBuilder<T = Record<string, unknown>> {
   private message: string = "";
   private success: boolean;
   private statusCode: number = 200;
   private data: T | null | undefined;
+  private metadata: IMetadata | null | undefined;
   private error:
     | ({
         message?: string;
@@ -30,6 +36,12 @@ export class ResponseBuilder<T = Record<string, unknown>> {
   //   Add data to the response object
   withData(data: T) {
     this.data = data;
+    return this;
+  }
+
+  // Add metadata to the response object
+  withMetadata(metadata: IMetadata) {
+    this.metadata = metadata;
     return this;
   }
 
@@ -70,6 +82,7 @@ export class ResponseBuilder<T = Record<string, unknown>> {
       success: this.success,
       statusCode: this.statusCode,
       message: this.message,
+      metadata: this.metadata,
       data: this.data,
       error: this.error,
     };
@@ -79,6 +92,7 @@ export class ResponseBuilder<T = Record<string, unknown>> {
     return {
       success: json.success,
       message: json.message,
+      metadata: json.metadata,
       data: json.data,
       error: json.error,
     };
